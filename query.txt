@@ -1,0 +1,65 @@
+Indexes :
+
+1. db.users.insertMany()
+2. db.purchase.insertMany()
+
+3 .db.purchase.createIndex({ user_id: 1 });
+
+4. db.users.aggregate([
+   {
+      $lookup:
+         {
+           from: "purchases",
+           localField: "_id",
+           foreignField: "user_id",
+           as: "purchases"
+         }
+   }
+   
+])
+
+
+5. db.users.aggregate([
+   {
+      $lookup:
+         {
+           from: "purchases",
+           localField: "_id",
+           foreignField: "user_id",
+           as: "purchases"
+         }
+   },
+   {
+      $group:
+      {
+         _id: "$_id",
+         name: { $first: "$name" },
+         total_purchases: { $sum: { $size: "$purchases" } },
+         total_spending: { $sum: { $sum: "$purchases.price" } }
+      }
+   }
+])
+
+6. db.users.aggregate([
+   {
+      $lookup:
+         {
+           from: "purchase",
+           localField: "_id",
+           foreignField: "user_id",
+           as: "purchase"
+         }
+   },
+   {
+      $group:
+      {
+         _id: "$_id",
+         name: { $first: "$name" },
+         total_purchase: { $sum: { $size: "$purchase" } },
+         total_spending: { $sum: { $sum: "$purchase.price" } }
+      }
+   },
+   {
+      $sort: { total_spending: -1 }
+   }
+])
